@@ -1,0 +1,169 @@
+#!/bin/bash
+
+# Section A - Manual Page, Help, and Version
+
+man_page() {
+    echo "INTERNCTL(1)                      User Commands                      INTERNCTL(1)
+
+NAME
+    internsctl - Custom Linux command for various operations
+
+SYNOPSIS
+    internsctl [--version] | <command> [<options>] [<args>]
+
+DESCRIPTION
+    internsctl is a custom Linux command for performing various system operations.
+
+OPTIONS
+    --help          Show help for the command
+    --version       Show version information
+
+COMMANDS
+    cpu             Get CPU information
+    memory          Get memory information
+    user            User operations
+    file            File operations
+
+EXAMPLES
+    internsctl cpu getinfo
+    internsctl memory getinfo
+    internsctl user create <username>
+    internsctl user list
+    internsctl user list --sudo-only
+    internsctl file getinfo <file-name>
+    internsctl file getinfo --size <file-name>
+    internsctl file getinfo --permissions <file-name>
+    internsctl file getinfo --owner <file-name>
+    internsctl file getinfo --last-modified <file-name>
+
+VERSION
+    v0.1.0
+"
+
+}
+
+help_info() {
+    echo "Usage: internsctl [--version] | <command> [<options>] [<args>]"
+}
+
+version_info() {
+    echo "internsctl v0.1.0"
+}
+
+# Section B - Functionality Implementation
+
+# Part1 | Level Easy
+
+cpu_getinfo() {
+    lscpu
+}
+
+memory_getinfo() {
+    free
+}
+
+# Part2 | Level Intermediate
+
+user_create() {
+    if [ -z "$1" ]; then
+        echo "Error: Username not provided."
+    else
+        sudo useradd -m "$1"
+        echo "User '$1' created successfully."
+    fi
+}
+
+user_list() {
+    getent passwd | cut -d: -f1
+}
+
+user_list_sudo_only() {
+    grep -Po '^sudo.+:\K.*$' /etc/group | tr ',' '\n'
+}
+
+# Part3 | Advanced Level
+
+file_getinfo() {
+    local file_name="$1"
+    local size=""
+    local permissions=""
+    local owner=""
+    local last_modified=""
+
+    while [[ $# -gt 1 ]]; do
+        case "$1" in
+            --size|-s)
+                size="$(du -b "$file_name" | cut -f1)"
+                shift ;;
+            --permissions|-p)
+                permissions="$(stat -c %A "$file_name")"
+                shift ;;
+            --owner|-o)
+                owner="$(stat -c %U "$file_name")"
+                shift ;;
+            --last-modified|-m)
+                last_modified="$(stat -c %y "$file_name")"
+                shift ;;
+            *)
+                shift ;;
+        esac
+    done
+
+    echo "File: $file_name"
+    echo "Access: $permissions"
+    echo "Size(B): $size"
+    echo "Owner: $owner"
+    echo "Modify: $last_modified"
+}
+
+# Main Script Logic
+
+case "$1" in
+    --help)
+        help_info
+        ;;
+    --version)
+        version_info
+        ;;
+    cpu)
+        cpu_getinfo
+        ;;
+    memory)
+        memory_getinfo
+        ;;
+    user)
+        shift
+        case "$1" in
+            create)
+                shift
+                user_create "$@"
+                ;;
+            list)
+                shift
+                if [ "$1" == "--sudo-only" ]; then
+                    user_list_sudo_only
+                else
+                    user_list
+                fi
+                ;;
+            *)
+                help_info
+                ;;
+        esac
+        ;;
+    file)
+        shift
+        case "$1" in
+            getinfo)
+                shift
+                file_getinfo "$@"
+                ;;
+            *)
+                help_info
+                ;;
+        esac
+        ;;
+    *)
+        help_info
+        ;;
+esac
