@@ -1,0 +1,31 @@
+.home {
+    color: black;
+    font-weight: bold;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+
+/* .homepage {
+    /* background-image: url(https://img.freepik.com/free-vector/clean-medical-background_53876-97927.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed; */
+
+
+/* height: 100vh;
+background-color: aquamarine; */
+
+.homepage {
+    text-align: center;
+}
+
+img {
+    height: 600px;
+    width: 1500px;
+}
+
+h1 {
+    font-style: italic;
+    font-size: xx-large;
+    color: rgba(71, 41, 41, 0.94);
+}
